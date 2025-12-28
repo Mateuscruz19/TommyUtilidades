@@ -12,6 +12,13 @@ import youtubedl from 'youtube-dl-exec'
 const app = express()
 const PORT = process.env.PORT || 3000
 
+// Detect base URL for production/development
+const BASE_URL = process.env.RAILWAY_PUBLIC_DOMAIN 
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  : process.env.RENDER_EXTERNAL_URL
+  ? process.env.RENDER_EXTERNAL_URL
+  : `http://localhost:${PORT}`
+
 // CORS configuration - allow frontend origins
 const allowedOrigins = [
   'http://localhost:5173',  // Local development
@@ -124,7 +131,7 @@ app.post('/api/download-youtube', async (req, res) => {
       title,
       thumbnail,
       formats,
-      downloadUrl: `http://localhost:${PORT}/api/download-youtube-stream?url=${encodeURIComponent(url)}`,
+      downloadUrl: `${BASE_URL}/api/download-youtube-stream?url=${encodeURIComponent(url)}`,
       message: 'Clique no botão de download para baixar o vídeo',
     })
   } catch (error) {
@@ -250,7 +257,7 @@ app.post('/api/download-instagram', async (req, res) => {
       videoId: mediaId,
       title,
       thumbnail,
-      downloadUrl: `http://localhost:${PORT}/api/download-instagram-stream?url=${encodeURIComponent(url)}`,
+      downloadUrl: `${BASE_URL}/api/download-instagram-stream?url=${encodeURIComponent(url)}`,
       message: 'Clique no botão de download para baixar o vídeo',
     })
   } catch (error) {
@@ -341,6 +348,16 @@ app.post('/api/download-twitter', async (req, res) => {
       return res.status(400).json({ error: 'URL do Twitter/X inválida' })
     }
 
+    // Twitter/X has implemented strict API restrictions
+    // Returning a user-friendly error message
+    return res.status(503).json({ 
+      success: false,
+      error: 'Downloads do Twitter/X estão temporariamente indisponíveis devido às restrições da plataforma. Por favor, use YouTube ou Instagram.',
+      platform: 'twitter',
+      unavailable: true
+    })
+
+    /* Commented out until Twitter/X API issues are resolved
     const tweetId = match[1]
 
     // Get video info using yt-dlp
@@ -364,9 +381,10 @@ app.post('/api/download-twitter', async (req, res) => {
       videoId: tweetId,
       title,
       thumbnail,
-      downloadUrl: `http://localhost:${PORT}/api/download-twitter-stream?url=${encodeURIComponent(url)}`,
+      downloadUrl: `${BASE_URL}/api/download-twitter-stream?url=${encodeURIComponent(url)}`,
       message: 'Clique no botão de download para baixar o vídeo',
     })
+    */
   } catch (error) {
     console.error('Error processing Twitter URL:', error)
     return res.status(500).json({ 
