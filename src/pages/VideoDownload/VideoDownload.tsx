@@ -148,10 +148,11 @@ const VideoDownload: React.FC = () => {
       } else {
         // For other platforms, try local server or show info
         try {
+          const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
           const endpointMap: Record<Platform, string> = {
-            youtube: 'http://localhost:3000/api/download-youtube',
-            instagram: 'http://localhost:3000/api/download-instagram',
-            twitter: 'http://localhost:3000/api/download-twitter',
+            youtube: `${apiBaseUrl}/api/download-youtube`,
+            instagram: `${apiBaseUrl}/api/download-instagram`,
+            twitter: `${apiBaseUrl}/api/download-twitter`,
           }
 
           const response = await fetch(endpointMap[platform], {
