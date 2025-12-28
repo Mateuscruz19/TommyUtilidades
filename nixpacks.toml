@@ -2,7 +2,10 @@
 nixPkgs = ["nodejs", "python311", "yt-dlp"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm install --production=false"]
+
+[phases.build]
+cmds = ["echo 'Skipping frontend build - backend only'"]
 
 [start]
 cmd = "node server.mjs"

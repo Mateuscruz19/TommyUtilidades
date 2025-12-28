@@ -121,8 +121,8 @@ const VideoDownload: React.FC = () => {
         // Use external API (yt-dlp-api or similar)
         // For now, extract video info and provide download link
         const videoIdMatch = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/ |.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/)
-        if (videoIdMatch && videoIdMatch[1]) {
-          const videoId = videoIdMatch[1]
+        const videoId = videoIdMatch?.[1]
+        if (videoId) {
           
           // Get video info from oEmbed
           const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
