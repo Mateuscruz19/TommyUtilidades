@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste API Backend</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        input, button { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; }
+        button { background: #f60; color: white; border: none; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 15px; overflow-x: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste API Backend - Tommy Utilidades</h1>
+    
+    <label>URL do Backend (Railway):</label>
+    <input type="text" id="apiUrl" placeholder="https://sua-url.up.railway.app" />
+    
+    <label>URL do YouTube para testar:</label>
+    <input type="text" id="videoUrl" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
+    
+    <button onclick="testAPI()">🚀 Testar API</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const videoUrl = document.getElementById('videoUrl').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!apiUrl) {
+                resultDiv.innerHTML = '<p class="error">❌ Por favor, insira a URL do backend!</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>⏳ Testando...</p>';
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/download-youtube`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: videoUrl })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3 class="success">✅ API FUNCIONANDO!</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3 class="error">⚠️ API respondeu com erro</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3 class="error">❌ ERRO DE CONEXÃO</h3>
+                    <p><strong>Erro:</strong> ${error.message}</p>
+                    <p><strong>Possíveis causas:</strong></p>
+                    <ul>
+                        <li>URL do backend está incorreta</li>
+                        <li>Backend não está rodando no Railway</li>
+                        <li>Problema de CORS (menos provável)</li>
+                    </ul>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Tommy Utilidades</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 14px;
+        }
+        h1 { font-size: 20px; margin-bottom: 20px; }
+        .info { background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .error { background: #ffebee; padding: 15px; margin: 10px 0; border-radius: 8px; color: #c62828; }
+        .success { background: #e8f5e9; padding: 15px; margin: 10px 0; border-radius: 8px; color: #2e7d32; }
+        button {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        button:active { background: #cc5200; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .loading { text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Mobile - Tommy Utilidades</h1>
+    
+    <div class="info">
+        <strong>📱 Dispositivo:</strong><br>
+        <span id="device">Carregando...</span>
+    </div>
+    
+    <div class="info">
+        <strong>🌐 Protocolo:</strong><br>
+        <span id="protocol">Carregando...</span>
+    </div>
+    
+    <div class="info">
+        <strong>🔗 URL da API (detectada):</strong><br>
+        <span id="apiUrl">Carregando...</span>
+    </div>
+    
+    <button onclick="testConnection()">🧪 Testar Conexão com Backend</button>
+    
+    <div id="result"></div>
+
+    <script>
+        // Detectar informações do dispositivo
+        document.getElementById('device').textContent = navigator.userAgent;
+        document.getElementById('protocol').textContent = window.location.protocol;
+        
+        // Simular a mesma lógica do frontend
+        const apiUrl = 'VITE_API_URL_PLACEHOLDER' !== 'VITE_API_URL_PLACEHOLDER' 
+            ? 'VITE_API_URL_PLACEHOLDER' 
+            : 'http://localhost:3000';
+        
+        document.getElementById('apiUrl').textContent = apiUrl;
+        
+        // Alertas importantes
+        if (window.location.protocol === 'https:' && apiUrl.startsWith('http:')) {
+            document.getElementById('result').innerHTML = `
+                <div class="error">
+                    <strong>⚠️ ERRO DE MIXED CONTENT!</strong><br><br>
+                    O site está em HTTPS mas a API está em HTTP.<br>
+                    Navegadores bloqueiam isso por segurança.<br><br>
+                    <strong>Solução:</strong> Configure VITE_API_URL com HTTPS no Vercel.
+                </div>
+            `;
+        }
+        
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="loading">⏳ Testando conexão...</div>';
+            
+            const testUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${apiUrl}/api/download-youtube`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: testUrl })
+                });
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ CONEXÃO FUNCIONANDO!</strong><br><br>
+                            <strong>Tempo de resposta:</strong> ${duration}ms<br>
+                            <strong>Status:</strong> ${response.status}<br><br>
+                            <strong>Dados recebidos:</strong><br>
+                            <pre>${JSON.stringify(data, null, 2).substring(0, 500)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>⚠️ Servidor respondeu com erro</strong><br><br>
+                            <strong>Status:</strong> ${response.status}<br>
+                            <strong>Erro:</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ ERRO DE CONEXÃO</strong><br><br>
+                        <strong>Mensagem:</strong> ${error.message}<br><br>
+                        <strong>Possíveis causas:</strong><br>
+                        • Backend não está rodando<br>
+                        • URL incorreta<br>
+                        • Problema de CORS<br>
+                        • Mixed Content (HTTPS→HTTP)<br>
+                        • Rede móvel bloqueando<br><br>
+                        <strong>Detalhes técnicos:</strong><br>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+

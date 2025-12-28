@@ -10,6 +10,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Debug console for mobile - add ?debug to URL -->
+    <script>
+      if (window.location.search.includes('debug')) {
+        const script = document.createElement('script');
+        script.src = '//cdn.jsdelivr.net/npm/eruda';
+        document.body.appendChild(script);
+        script.onload = () => eruda.init();
+      }
+    </script>
   </body>
 </html>
 
