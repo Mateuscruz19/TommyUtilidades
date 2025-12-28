@@ -1,0 +1,19 @@
+# Backend files (deployed separately on Railway/Render)
+server.mjs
+server.js
+api/
+
+# Development files
+*.sh
+cookies.txt
+.env.local
+
+# Railway/Render configs
+nixpacks.toml
+railway.json
+Procfile
+
+# Deployment docs
+DEPLOY_GUIDE.md
+DEPLOYMENT.md
+
